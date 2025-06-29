@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -138,11 +137,11 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black">
       {renderActiveView()}
       
       {/* Bottom Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 bg-black/80 backdrop-blur-lg border-t border-purple-500/30">
+      <div className="fixed bottom-0 left-0 right-0 bg-black/80 backdrop-blur-lg border-t border-gray-500/30">
         <div className="flex justify-around items-center py-2 px-4">
           {[
             { id: "dashboard", icon: "🏠", label: "Home" },
@@ -156,7 +155,7 @@ const Index = () => {
               onClick={() => setActiveView(item.id)}
               className={`flex flex-col items-center gap-1 p-2 rounded-lg transition-all ${
                 activeView === item.id
-                  ? "bg-purple-600 text-white"
+                  ? "bg-white text-black"
                   : "text-gray-300 hover:text-white hover:bg-white/10"
               }`}
             >

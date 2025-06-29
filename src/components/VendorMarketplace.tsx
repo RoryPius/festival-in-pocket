@@ -43,9 +43,9 @@ const VendorMarketplace = ({ vendors, walletBalance, onWalletUpdate }: VendorMar
   };
 
   const getWaitTimeColor = (waitTime: number) => {
-    if (waitTime <= 5) return "bg-green-500/20 text-green-300 border-green-500/30";
-    if (waitTime <= 10) return "bg-yellow-500/20 text-yellow-300 border-yellow-500/30";
-    return "bg-red-500/20 text-red-300 border-red-500/30";
+    if (waitTime <= 5) return "bg-white text-black border-gray-300";
+    if (waitTime <= 10) return "bg-gray-300 text-black border-gray-400";
+    return "bg-gray-600 text-white border-gray-500";
   };
 
   return (
@@ -53,7 +53,7 @@ const VendorMarketplace = ({ vendors, walletBalance, onWalletUpdate }: VendorMar
       {/* Header */}
       <div className="text-center mb-6">
         <h1 className="text-2xl font-bold text-white mb-2">Vendor Marketplace</h1>
-        <Badge className="bg-green-500/20 text-green-300 border-green-500/30">
+        <Badge className="bg-white text-black border-gray-300">
           Wallet: ${walletBalance.toFixed(2)}
         </Badge>
       </div>
@@ -66,8 +66,8 @@ const VendorMarketplace = ({ vendors, walletBalance, onWalletUpdate }: VendorMar
             onClick={() => setSelectedCategory(category.id)}
             className={`flex items-center gap-2 px-4 py-2 rounded-full whitespace-nowrap transition-all ${
               selectedCategory === category.id
-                ? "bg-purple-600 text-white"
-                : "bg-black/40 text-purple-200 hover:bg-white/10"
+                ? "bg-white text-black"
+                : "bg-black/40 text-gray-300 hover:bg-white/10"
             }`}
           >
             <span>{category.icon}</span>
@@ -79,7 +79,7 @@ const VendorMarketplace = ({ vendors, walletBalance, onWalletUpdate }: VendorMar
       {/* Vendors List */}
       <div className="space-y-4">
         {filteredVendors.map((vendor) => (
-          <Card key={vendor.id} className="bg-black/40 backdrop-blur-lg border-purple-500/30">
+          <Card key={vendor.id} className="bg-black/40 backdrop-blur-lg border-gray-500/30">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -100,13 +100,13 @@ const VendorMarketplace = ({ vendors, walletBalance, onWalletUpdate }: VendorMar
                     <span className="text-2xl">{item.image}</span>
                     <div>
                       <h4 className="text-white font-medium">{item.name}</h4>
-                      <p className="text-purple-200 text-sm">${item.price}</p>
+                      <p className="text-gray-300 text-sm">${item.price}</p>
                     </div>
                   </div>
                   <Button
                     size="sm"
                     onClick={() => handleOrder(item, vendor)}
-                    className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                    className="bg-white text-black hover:bg-gray-200"
                     disabled={walletBalance < item.price}
                   >
                     Order

@@ -39,10 +39,10 @@ const OrderHistory = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "ready": return "bg-green-500/20 text-green-300 border-green-500/30";
-      case "preparing": return "bg-yellow-500/20 text-yellow-300 border-yellow-500/30";
-      case "completed": return "bg-gray-500/20 text-gray-300 border-gray-500/30";
-      default: return "bg-purple-500/20 text-purple-300 border-purple-500/30";
+      case "ready": return "bg-white text-black border-gray-300";
+      case "preparing": return "bg-gray-400 text-black border-gray-500";
+      case "completed": return "bg-gray-600 text-white border-gray-500";
+      default: return "bg-gray-500 text-white border-gray-500";
     }
   };
 
@@ -60,25 +60,25 @@ const OrderHistory = () => {
       {/* Header */}
       <div className="text-center mb-6">
         <h1 className="text-2xl font-bold text-white mb-2">Order History</h1>
-        <p className="text-purple-200">Track your festival orders</p>
+        <p className="text-gray-300">Track your festival orders</p>
       </div>
 
       {/* Active Orders */}
       <div className="mb-6">
         <h2 className="text-white font-semibold mb-3 flex items-center gap-2">
-          <span className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></span>
+          <span className="w-3 h-3 bg-white rounded-full animate-pulse"></span>
           Active Orders
         </h2>
         
         {orders.filter(order => order.status !== "completed").map((order) => (
-          <Card key={order.id} className="bg-black/40 backdrop-blur-lg border-purple-500/30 mb-4">
+          <Card key={order.id} className="bg-black/40 backdrop-blur-lg border-gray-500/30 mb-4">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <span className="text-2xl">{order.logo}</span>
                   <div>
                     <CardTitle className="text-white text-lg">{order.vendor}</CardTitle>
-                    <p className="text-purple-200 text-sm">Order #{order.id} • {order.orderTime}</p>
+                    <p className="text-gray-300 text-sm">Order #{order.id} • {order.orderTime}</p>
                   </div>
                 </div>
                 <Badge className={getStatusColor(order.status)}>
@@ -95,21 +95,21 @@ const OrderHistory = () => {
               </div>
               
               {/* Total */}
-              <div className="flex justify-between items-center pt-2 border-t border-purple-500/30">
-                <span className="text-purple-200">Total:</span>
+              <div className="flex justify-between items-center pt-2 border-t border-gray-500/30">
+                <span className="text-gray-300">Total:</span>
                 <span className="text-white font-bold">${order.total.toFixed(2)}</span>
               </div>
 
               {/* ETA or Ready Time */}
               {order.status === "preparing" && (
                 <div className="text-center py-2">
-                  <p className="text-yellow-300 font-medium">⏱️ ETA: {order.eta}</p>
+                  <p className="text-gray-300 font-medium">⏱️ ETA: {order.eta}</p>
                 </div>
               )}
               
               {order.status === "ready" && (
                 <div className="text-center">
-                  <Button className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700">
+                  <Button className="w-full bg-white text-black hover:bg-gray-200">
                     🏃‍♂️ Head to Pickup
                   </Button>
                 </div>
@@ -149,7 +149,7 @@ const OrderHistory = () => {
                 <Button 
                   size="sm" 
                   variant="outline" 
-                  className="border-purple-500/30 text-purple-300 hover:bg-purple-500/10"
+                  className="border-gray-500/30 text-gray-300 hover:bg-gray-700/20"
                 >
                   Reorder
                 </Button>

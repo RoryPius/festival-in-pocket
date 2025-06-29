@@ -21,13 +21,13 @@ const InteractiveMap = ({ vendors }: InteractiveMapProps) => {
 
   const getFeatureColor = (type: string) => {
     switch (type) {
-      case "stage": return "bg-purple-500";
-      case "food": return "bg-orange-500";
-      case "drink": return "bg-blue-500";
-      case "toilet": return "bg-green-500";
-      case "merch": return "bg-pink-500";
-      case "first-aid": return "bg-red-500";
-      case "water": return "bg-cyan-500";
+      case "stage": return "bg-white";
+      case "food": return "bg-gray-600";
+      case "drink": return "bg-gray-700";
+      case "toilet": return "bg-gray-500";
+      case "merch": return "bg-gray-400";
+      case "first-aid": return "bg-black";
+      case "water": return "bg-gray-300";
       default: return "bg-gray-500";
     }
   };
@@ -37,13 +37,13 @@ const InteractiveMap = ({ vendors }: InteractiveMapProps) => {
       {/* Header */}
       <div className="text-center mb-6">
         <h1 className="text-2xl font-bold text-white mb-2">Festival Map</h1>
-        <p className="text-purple-200">Tap icons for live info</p>
+        <p className="text-gray-300">Tap icons for live info</p>
       </div>
 
       {/* Map Container */}
-      <Card className="bg-black/40 backdrop-blur-lg border-purple-500/30 mb-6">
+      <Card className="bg-black/40 backdrop-blur-lg border-gray-500/30 mb-6">
         <CardContent className="p-4">
-          <div className="relative w-full h-80 bg-gradient-to-br from-green-900/20 to-green-800/20 rounded-lg overflow-hidden">
+          <div className="relative w-full h-80 bg-gradient-to-br from-gray-800/20 to-gray-700/20 rounded-lg overflow-hidden">
             {/* Map Background Pattern */}
             <div className="absolute inset-0 opacity-10">
               <div className="w-full h-full" style={{
@@ -59,7 +59,7 @@ const InteractiveMap = ({ vendors }: InteractiveMapProps) => {
                 className="absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer group"
                 style={{ left: `${feature.x}%`, top: `${feature.y}%` }}
               >
-                <div className={`w-8 h-8 rounded-full ${getFeatureColor(feature.type)} flex items-center justify-center text-white text-sm font-bold shadow-lg animate-pulse group-hover:scale-110 transition-transform`}>
+                <div className={`w-8 h-8 rounded-full ${getFeatureColor(feature.type)} flex items-center justify-center text-black text-sm font-bold shadow-lg animate-pulse group-hover:scale-110 transition-transform`}>
                   <span className="text-xs">{feature.icon}</span>
                 </div>
                 
@@ -67,7 +67,7 @@ const InteractiveMap = ({ vendors }: InteractiveMapProps) => {
                 <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
                   <div className="bg-black/80 text-white text-xs rounded-lg px-2 py-1 whitespace-nowrap">
                     <div className="font-semibold">{feature.name}</div>
-                    <div className="text-purple-200">{feature.info}</div>
+                    <div className="text-gray-300">{feature.info}</div>
                   </div>
                 </div>
               </div>
@@ -75,8 +75,8 @@ const InteractiveMap = ({ vendors }: InteractiveMapProps) => {
 
             {/* Your Location */}
             <div className="absolute bottom-4 right-4">
-              <div className="w-6 h-6 bg-blue-400 rounded-full border-2 border-white animate-pulse flex items-center justify-center">
-                <div className="w-2 h-2 bg-white rounded-full"></div>
+              <div className="w-6 h-6 bg-white rounded-full border-2 border-gray-400 animate-pulse flex items-center justify-center">
+                <div className="w-2 h-2 bg-black rounded-full"></div>
               </div>
             </div>
           </div>

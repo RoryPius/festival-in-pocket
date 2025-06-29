@@ -42,22 +42,22 @@ const WalletComponent = ({ balance, onBalanceUpdate }: WalletComponentProps) => 
       {/* Header */}
       <div className="text-center mb-6">
         <h1 className="text-2xl font-bold text-white mb-2">Digital Wallet</h1>
-        <p className="text-purple-200">Top up to order from vendors</p>
+        <p className="text-gray-300">Top up to order from vendors</p>
       </div>
 
       {/* Current Balance */}
-      <Card className="bg-gradient-to-r from-green-600/20 to-emerald-600/20 backdrop-blur-lg border-green-500/30 mb-6">
+      <Card className="bg-gradient-to-r from-gray-800/50 to-gray-700/50 backdrop-blur-lg border-gray-500/30 mb-6">
         <CardContent className="p-6 text-center">
-          <div className="text-green-200 text-sm mb-2">Current Balance</div>
+          <div className="text-gray-300 text-sm mb-2">Current Balance</div>
           <div className="text-4xl font-bold text-white mb-2">${balance.toFixed(2)}</div>
-          <Badge className="bg-green-500/20 text-green-300 border-green-500/30">
+          <Badge className="bg-white text-black border-gray-300">
             💳 Ready to spend
           </Badge>
         </CardContent>
       </Card>
 
       {/* Top-up Options */}
-      <Card className="bg-black/40 backdrop-blur-lg border-purple-500/30 mb-6">
+      <Card className="bg-black/40 backdrop-blur-lg border-gray-500/30 mb-6">
         <CardHeader>
           <CardTitle className="text-white">Quick Top-up</CardTitle>
         </CardHeader>
@@ -68,21 +68,21 @@ const WalletComponent = ({ balance, onBalanceUpdate }: WalletComponentProps) => 
                 key={amount}
                 onClick={() => handleTopUp(amount)}
                 disabled={isLoading}
-                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold py-3"
+                className="bg-white text-black hover:bg-gray-200 font-semibold py-3"
               >
                 {isLoading ? "Processing..." : `+$${amount}`}
               </Button>
             ))}
           </div>
           
-          <div className="pt-4 border-t border-purple-500/30">
-            <p className="text-purple-200 text-sm text-center mb-3">
+          <div className="pt-4 border-t border-gray-500/30">
+            <p className="text-gray-300 text-sm text-center mb-3">
               💳 Apple Pay • Google Pay • Card
             </p>
             <Button
               onClick={() => handleTopUp(25)}
               disabled={isLoading}
-              className="w-full bg-black text-white border border-purple-500/30 hover:bg-purple-900/20"
+              className="w-full bg-black text-white border border-gray-500/30 hover:bg-gray-800"
             >
               {isLoading ? "Processing Payment..." : "Custom Amount"}
             </Button>
@@ -91,7 +91,7 @@ const WalletComponent = ({ balance, onBalanceUpdate }: WalletComponentProps) => 
       </Card>
 
       {/* Recent Transactions */}
-      <Card className="bg-black/40 backdrop-blur-lg border-purple-500/30">
+      <Card className="bg-black/40 backdrop-blur-lg border-gray-500/30">
         <CardHeader>
           <CardTitle className="text-white">Recent Activity</CardTitle>
         </CardHeader>
@@ -100,7 +100,7 @@ const WalletComponent = ({ balance, onBalanceUpdate }: WalletComponentProps) => 
             <div key={transaction.id} className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
               <div className="flex items-center gap-3">
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                  transaction.type === "topup" ? "bg-green-500/20" : "bg-red-500/20"
+                  transaction.type === "topup" ? "bg-white/20" : "bg-gray-600/20"
                 }`}>
                   <span className="text-sm">
                     {transaction.type === "topup" ? "💳" : "🛍️"}
@@ -108,11 +108,11 @@ const WalletComponent = ({ balance, onBalanceUpdate }: WalletComponentProps) => 
                 </div>
                 <div>
                   <div className="text-white font-medium">{transaction.vendor}</div>
-                  <div className="text-purple-200 text-xs">{transaction.time}</div>
+                  <div className="text-gray-300 text-xs">{transaction.time}</div>
                 </div>
               </div>
               <div className={`font-bold ${
-                transaction.amount > 0 ? "text-green-300" : "text-red-300"
+                transaction.amount > 0 ? "text-white" : "text-gray-400"
               }`}>
                 {transaction.amount > 0 ? "+" : ""}${Math.abs(transaction.amount).toFixed(2)}
               </div>
@@ -122,8 +122,8 @@ const WalletComponent = ({ balance, onBalanceUpdate }: WalletComponentProps) => 
       </Card>
 
       {/* Refund Notice */}
-      <div className="mt-6 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
-        <p className="text-yellow-200 text-sm text-center">
+      <div className="mt-6 p-4 bg-gray-700/20 border border-gray-500/30 rounded-lg">
+        <p className="text-gray-300 text-sm text-center">
           💡 Unused wallet balance can be refunded after the event ends
         </p>
       </div>
