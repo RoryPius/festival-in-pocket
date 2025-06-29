@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { MapPin, Utensils, Users, ShoppingBag, Music, CreditCard, Clock, Wallet } from "lucide-react";
+import { MapPin, Utensils, Users, ShoppingBag, Music, CreditCard, Clock, Wallet, Home, Map } from "lucide-react";
 import EventCodeEntry from "@/components/EventCodeEntry";
 import Dashboard from "@/components/Dashboard";
 import VendorMarketplace from "@/components/VendorMarketplace";
@@ -78,7 +78,7 @@ const Index = () => {
       setEventData(eventInfo);
       setEventCode(code);
       toast({
-        title: "Access Granted! 🎉",
+        title: "Access Granted!",
         description: `Welcome to ${eventInfo.name}`,
       });
     } else {
@@ -144,25 +144,28 @@ const Index = () => {
       <div className="fixed bottom-0 left-0 right-0 bg-black/80 backdrop-blur-lg border-t border-gray-500/30">
         <div className="flex justify-around items-center py-2 px-4">
           {[
-            { id: "dashboard", icon: "🏠", label: "Home" },
-            { id: "map", icon: "🗺️", label: "Map" },
-            { id: "vendors", icon: "🛍️", label: "Vendors" },
-            { id: "dj", icon: "🎧", label: "DJ Vote" },
-            { id: "wallet", icon: "💳", label: "Wallet" },
-          ].map((item) => (
-            <button
-              key={item.id}
-              onClick={() => setActiveView(item.id)}
-              className={`flex flex-col items-center gap-1 p-2 rounded-lg transition-all ${
-                activeView === item.id
-                  ? "bg-white text-black"
-                  : "text-gray-300 hover:text-white hover:bg-white/10"
-              }`}
-            >
-              <span className="text-lg">{item.icon}</span>
-              <span className="text-xs font-medium">{item.label}</span>
-            </button>
-          ))}
+            { id: "dashboard", icon: Home, label: "Home" },
+            { id: "map", icon: Map, label: "Map" },
+            { id: "vendors", icon: ShoppingBag, label: "Vendors" },
+            { id: "dj", icon: Music, label: "DJ Vote" },
+            { id: "wallet", icon: CreditCard, label: "Wallet" },
+          ].map((item) => {
+            const IconComponent = item.icon;
+            return (
+              <button
+                key={item.id}
+                onClick={() => setActiveView(item.id)}
+                className={`flex flex-col items-center gap-1 p-2 rounded-lg transition-all ${
+                  activeView === item.id
+                    ? "bg-white text-black"
+                    : "text-gray-300 hover:text-white hover:bg-white/10"
+                }`}
+              >
+                <IconComponent className="w-5 h-5" />
+                <span className="text-xs font-medium">{item.label}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>

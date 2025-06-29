@@ -1,6 +1,7 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Map, Utensils, Users, ShoppingBag, Music, CreditCard } from "lucide-react";
 
 interface DashboardProps {
   eventData: any;
@@ -10,12 +11,12 @@ interface DashboardProps {
 
 const Dashboard = ({ eventData, walletBalance, onNavigate }: DashboardProps) => {
   const quickActions = [
-    { id: "map", icon: "🗺️", title: "Map", subtitle: "Find everything", color: "from-gray-600 to-gray-700" },
-    { id: "vendors", icon: "🍽", title: "Vendors", subtitle: "Food & drinks", color: "from-gray-700 to-gray-800" },
-    { id: "toilets", icon: "🚻", title: "Toilets", subtitle: "3min wait", color: "from-gray-600 to-gray-700" },
-    { id: "orders", icon: "📦", title: "Orders", subtitle: "Track orders", color: "from-gray-700 to-gray-800" },
-    { id: "dj", icon: "🎧", title: "DJ Queue", subtitle: "Vote for music", color: "from-gray-600 to-gray-700" },
-    { id: "wallet", icon: "💳", title: "Add Money", subtitle: "Top up wallet", color: "from-gray-700 to-gray-800" },
+    { id: "map", icon: Map, title: "Map", subtitle: "Find everything", color: "from-gray-600 to-gray-700" },
+    { id: "vendors", icon: Utensils, title: "Vendors", subtitle: "Food & drinks", color: "from-gray-700 to-gray-800" },
+    { id: "toilets", icon: Users, title: "Toilets", subtitle: "3min wait", color: "from-gray-600 to-gray-700" },
+    { id: "orders", icon: ShoppingBag, title: "Orders", subtitle: "Track orders", color: "from-gray-700 to-gray-800" },
+    { id: "dj", icon: Music, title: "DJ Queue", subtitle: "Vote for music", color: "from-gray-600 to-gray-700" },
+    { id: "wallet", icon: CreditCard, title: "Add Money", subtitle: "Top up wallet", color: "from-gray-700 to-gray-800" },
   ];
 
   return (
@@ -38,27 +39,33 @@ const Dashboard = ({ eventData, walletBalance, onNavigate }: DashboardProps) => 
             <div className="w-3 h-3 bg-white rounded-full animate-pulse"></div>
             <span className="text-white font-semibold">Festival is LIVE</span>
           </div>
-          <p className="text-gray-300 text-sm">🎵 Now Playing: Electronic Dreams - DJ Nova</p>
+          <div className="flex items-center justify-center gap-2">
+            <Music className="w-4 h-4 text-gray-300" />
+            <p className="text-gray-300 text-sm">Now Playing: Electronic Dreams - DJ Nova</p>
+          </div>
         </CardContent>
       </Card>
 
       {/* Quick Actions Grid */}
       <div className="grid grid-cols-2 gap-4">
-        {quickActions.map((action) => (
-          <Card
-            key={action.id}
-            className="bg-black/40 backdrop-blur-lg border-gray-500/30 hover:border-gray-400/50 transition-all cursor-pointer hover:scale-105"
-            onClick={() => onNavigate(action.id)}
-          >
-            <CardContent className="p-4 text-center">
-              <div className={`w-12 h-12 rounded-full bg-gradient-to-r ${action.color} flex items-center justify-center mx-auto mb-3`}>
-                <span className="text-2xl">{action.icon}</span>
-              </div>
-              <h3 className="text-white font-semibold mb-1">{action.title}</h3>
-              <p className="text-gray-300 text-xs">{action.subtitle}</p>
-            </CardContent>
-          </Card>
-        ))}
+        {quickActions.map((action) => {
+          const IconComponent = action.icon;
+          return (
+            <Card
+              key={action.id}
+              className="bg-black/40 backdrop-blur-lg border-gray-500/30 hover:border-gray-400/50 transition-all cursor-pointer hover:scale-105"
+              onClick={() => onNavigate(action.id)}
+            >
+              <CardContent className="p-4 text-center">
+                <div className={`w-12 h-12 rounded-full bg-gradient-to-r ${action.color} flex items-center justify-center mx-auto mb-3`}>
+                  <IconComponent className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="text-white font-semibold mb-1">{action.title}</h3>
+                <p className="text-gray-300 text-xs">{action.subtitle}</p>
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
 
       {/* Current Stats */}

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
+import { Music, Vote, Clock } from "lucide-react";
 
 interface DJVotingProps {
   djData: any;
@@ -31,7 +32,7 @@ const DJVoting = ({ djData }: DJVotingProps) => {
     setHasVoted(true);
     
     toast({
-      title: "Vote Recorded! 🎵",
+      title: "Vote Recorded!",
       description: "Thanks for helping choose the next track!",
     });
   };
@@ -48,7 +49,7 @@ const DJVoting = ({ djData }: DJVotingProps) => {
       <Card className="bg-gradient-to-r from-gray-800/50 to-gray-700/50 backdrop-blur-lg border-gray-500/30 mb-6">
         <CardContent className="p-4 text-center">
           <div className="flex items-center justify-center gap-2 mb-2">
-            <span className="text-2xl animate-pulse">🎵</span>
+            <Music className="w-6 h-6 text-white animate-pulse" />
             <span className="text-white font-semibold">Now Playing</span>
           </div>
           <p className="text-white text-lg font-medium">{djData.currentTrack}</p>
@@ -65,6 +66,7 @@ const DJVoting = ({ djData }: DJVotingProps) => {
       {/* Voting Status */}
       <div className="flex items-center justify-between mb-4">
         <Badge className="bg-gray-300 text-black border-gray-400">
+          <Vote className="w-3 h-3 mr-1" />
           {totalVotes + (hasVoted ? 1 : 0)} votes cast
         </Badge>
         {hasVoted && (
@@ -114,7 +116,8 @@ const DJVoting = ({ djData }: DJVotingProps) => {
                     className="w-full bg-white text-black hover:bg-gray-200"
                     size="sm"
                   >
-                    Vote for This Track 🎵
+                    <Music className="w-4 h-4 mr-2" />
+                    Vote for This Track
                   </Button>
                 )}
               </CardContent>
@@ -126,7 +129,10 @@ const DJVoting = ({ djData }: DJVotingProps) => {
       {/* Next Vote Timer */}
       <Card className="bg-black/20 backdrop-blur-lg border-gray-500/30 mt-6">
         <CardContent className="p-4 text-center">
-          <p className="text-gray-300 text-sm mb-2">Next voting round in:</p>
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <Clock className="w-4 h-4 text-gray-300" />
+            <p className="text-gray-300 text-sm">Next voting round in:</p>
+          </div>
           <div className="text-2xl font-bold text-white">2:34</div>
           <p className="text-gray-300 text-xs">Voting resets with each new track</p>
         </CardContent>

@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Music } from "lucide-react";
 
 interface EventCodeEntryProps {
   onSubmit: (code: string) => void;
@@ -22,7 +23,10 @@ const EventCodeEntry = ({ onSubmit }: EventCodeEntryProps) => {
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black flex items-center justify-center p-4">
       <div className="w-full max-w-md animate-fade-in">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">🎪 FestSync</h1>
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <Music className="w-8 h-8 text-white" />
+            <h1 className="text-4xl font-bold text-white">FestSync</h1>
+          </div>
           <p className="text-gray-300 text-lg">Your Festival Companion</p>
         </div>
 
@@ -50,7 +54,7 @@ const EventCodeEntry = ({ onSubmit }: EventCodeEntryProps) => {
                 className="w-full bg-white text-black hover:bg-gray-200 font-semibold py-3 text-lg"
                 disabled={code.length < 4}
               >
-                Access Festival ✨
+                Access Festival
               </Button>
             </form>
 

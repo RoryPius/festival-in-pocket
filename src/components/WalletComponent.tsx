@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { CreditCard, ShoppingBag, Plus, Smartphone, DollarSign } from "lucide-react";
 
 interface WalletComponentProps {
   balance: number;
@@ -31,7 +32,7 @@ const WalletComponent = ({ balance, onBalanceUpdate }: WalletComponentProps) => 
       onBalanceUpdate(balance + amount);
       setIsLoading(false);
       toast({
-        title: "Top-up Successful! 💳",
+        title: "Top-up Successful!",
         description: `Added $${amount.toFixed(2)} to your wallet`,
       });
     }, 1500);
@@ -51,7 +52,8 @@ const WalletComponent = ({ balance, onBalanceUpdate }: WalletComponentProps) => 
           <div className="text-gray-300 text-sm mb-2">Current Balance</div>
           <div className="text-4xl font-bold text-white mb-2">${balance.toFixed(2)}</div>
           <Badge className="bg-white text-black border-gray-300">
-            💳 Ready to spend
+            <CreditCard className="w-3 h-3 mr-1" />
+            Ready to spend
           </Badge>
         </CardContent>
       </Card>
@@ -59,7 +61,10 @@ const WalletComponent = ({ balance, onBalanceUpdate }: WalletComponentProps) => 
       {/* Top-up Options */}
       <Card className="bg-black/40 backdrop-blur-lg border-gray-500/30 mb-6">
         <CardHeader>
-          <CardTitle className="text-white">Quick Top-up</CardTitle>
+          <CardTitle className="text-white flex items-center gap-2">
+            <Plus className="w-5 h-5" />
+            Quick Top-up
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
@@ -70,15 +75,27 @@ const WalletComponent = ({ balance, onBalanceUpdate }: WalletComponentProps) => 
                 disabled={isLoading}
                 className="bg-white text-black hover:bg-gray-200 font-semibold py-3"
               >
-                {isLoading ? "Processing..." : `+$${amount}`}
+                <DollarSign className="w-4 h-4 mr-1" />
+                {isLoading ? "Processing..." : `${amount}`}
               </Button>
             ))}
           </div>
           
           <div className="pt-4 border-t border-gray-500/30">
-            <p className="text-gray-300 text-sm text-center mb-3">
-              💳 Apple Pay • Google Pay • Card
-            </p>
+            <div className="flex items-center justify-center gap-4 mb-3">
+              <div className="flex items-center gap-2 text-gray-300 text-sm">
+                <Smartphone className="w-4 h-4" />
+                <span>Apple Pay</span>
+              </div>
+              <div className="flex items-center gap-2 text-gray-300 text-sm">
+                <Smartphone className="w-4 h-4" />
+                <span>Google Pay</span>
+              </div>
+              <div className="flex items-center gap-2 text-gray-300 text-sm">
+                <CreditCard className="w-4 h-4" />
+                <span>Card</span>
+              </div>
+            </div>
             <Button
               onClick={() => handleTopUp(25)}
               disabled={isLoading}
@@ -102,9 +119,11 @@ const WalletComponent = ({ balance, onBalanceUpdate }: WalletComponentProps) => 
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
                   transaction.type === "topup" ? "bg-white/20" : "bg-gray-600/20"
                 }`}>
-                  <span className="text-sm">
-                    {transaction.type === "topup" ? "💳" : "🛍️"}
-                  </span>
+                  {transaction.type === "topup" ? (
+                    <CreditCard className="w-4 h-4 text-white" />
+                  ) : (
+                    <ShoppingBag className="w-4 h-4 text-white" />
+                  )}
                 </div>
                 <div>
                   <div className="text-white font-medium">{transaction.vendor}</div>
@@ -124,7 +143,8 @@ const WalletComponent = ({ balance, onBalanceUpdate }: WalletComponentProps) => 
       {/* Refund Notice */}
       <div className="mt-6 p-4 bg-gray-700/20 border border-gray-500/30 rounded-lg">
         <p className="text-gray-300 text-sm text-center">
-          💡 Unused wallet balance can be refunded after the event ends
+          <DollarSign className="w-4 h-4 inline mr-1" />
+          Unused wallet balance can be refunded after the event ends
         </p>
       </div>
     </div>
