@@ -1,0 +1,138 @@
+
+import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { useToast } from "@/hooks/use-toast";
+
+interface DJVotingProps {
+  djData: any;
+}
+
+const DJVoting = ({ djData }: DJVotingProps) => {
+  const [hasVoted, setHasVoted] = useState(false);
+  const [selectedVote, setSelectedVote] = useState<number | null>(null);
+  const [votes, setVotes] = useState(djData.options);
+  const { toast } = useToast();
+
+  const totalVotes = votes.reduce((sum: number, option: any) => sum + option.votes, 0);
+
+  const handleVote = (optionId: number) => {
+    if (hasVoted) return;
+
+    setVotes(votes.map((option: any) => 
+      option.id === optionId 
+        ? { ...option, votes: option.votes + 1 }
+        : option
+    ));
+    
+    setSelectedVote(optionId);
+    setHasVoted(true);
+    
+    toast({
+      title: "Vote Recorded! 🎵",
+      description: "Thanks for helping choose the next track!",
+    });
+  };
+
+  return (
+    <div className="p-4 pb-24 max-w-md mx-auto">
+      {/* Header */}
+      <div className="text-center mb-6">
+        <h1 className="text-2xl font-bold text-white mb-2">DJ Queue Voting</h1>
+        <p className="text-purple-200">Vote for the next track!</p>
+      </div>
+
+      {/* Now Playing */}
+      <Card className="bg-gradient-to-r from-purple-600/20 to-pink-600/20 backdrop-blur-lg border-purple-500/30 mb-6">
+        <CardContent className="p-4 text-center">
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <span className="text-2xl animate-pulse">🎵</span>
+            <span className="text-white font-semibold">Now Playing</span>
+          </div>
+          <p className="text-white text-lg font-medium">{djData.currentTrack}</p>
+          <div className="flex items-center justify-center gap-2 mt-2">
+            <div className="flex gap-1">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className={`w-1 h-6 bg-gradient-to-t from-purple-500 to-pink-500 rounded-full animate-pulse ${i % 2 === 0 ? 'animation-delay-100' : ''}`}></div>
+              ))}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Voting Status */}
+      <div className="flex items-center justify-between mb-4">
+        <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/30">
+          {totalVotes + (hasVoted ? 1 : 0)} votes cast
+        </Badge>
+        {hasVoted && (
+          <Badge className="bg-green-500/20 text-green-300 border-green-500/30">
+            ✓ Vote Recorded
+          </Badge>
+        )}
+      </div>
+
+      {/* Voting Options */}
+      <div className="space-y-4">
+        {votes.map((option: any) => {
+          const percentage = totalVotes > 0 ? (option.votes / totalVotes) * 100 : 0;
+          const isSelected = selectedVote === option.id;
+          
+          return (
+            <Card 
+              key={option.id} 
+              className={`bg-black/40 backdrop-blur-lg border-purple-500/30 transition-all cursor-pointer hover:border-purple-400/50 ${
+                isSelected ? 'border-green-500/50 bg-green-500/10' : ''
+              } ${hasVoted ? 'cursor-default' : 'hover:scale-102'}`}
+              onClick={() => handleVote(option.id)}
+            >
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <h3 className="text-white font-semibold">{option.title}</h3>
+                    <p className="text-purple-200 text-sm">by {option.artist}</p>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-white font-bold text-lg">{option.votes}</div>
+                    <div className="text-purple-200 text-xs">votes</div>
+                  </div>
+                </div>
+                
+                {hasVoted && (
+                  <div className="space-y-2">
+                    <Progress value={percentage} className="h-2" />
+                    <div className="text-right text-purple-200 text-xs">
+                      {percentage.toFixed(1)}%
+                    </div>
+                  </div>
+                )}
+                
+                {!hasVoted && (
+                  <Button 
+                    className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                    size="sm"
+                  >
+                    Vote for This Track 🎵
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+
+      {/* Next Vote Timer */}
+      <Card className="bg-black/20 backdrop-blur-lg border-purple-500/30 mt-6">
+        <CardContent className="p-4 text-center">
+          <p className="text-purple-200 text-sm mb-2">Next voting round in:</p>
+          <div className="text-2xl font-bold text-white">2:34</div>
+          <p className="text-purple-200 text-xs">Voting resets with each new track</p>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+export default DJVoting;

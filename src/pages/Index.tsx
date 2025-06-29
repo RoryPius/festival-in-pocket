@@ -1,11 +1,170 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
+import { MapPin, Utensils, Users, ShoppingBag, Music, CreditCard, Clock, Wallet } from "lucide-react";
+import EventCodeEntry from "@/components/EventCodeEntry";
+import Dashboard from "@/components/Dashboard";
+import VendorMarketplace from "@/components/VendorMarketplace";
+import InteractiveMap from "@/components/InteractiveMap";
+import DJVoting from "@/components/DJVoting";
+import WalletComponent from "@/components/WalletComponent";
+import OrderHistory from "@/components/OrderHistory";
 
 const Index = () => {
+  const [eventCode, setEventCode] = useState<string>("");
+  const [eventData, setEventData] = useState<any>(null);
+  const [walletBalance, setWalletBalance] = useState(125.50);
+  const [activeView, setActiveView] = useState("dashboard");
+  const { toast } = useToast();
+
+  // Mock event data - in real app this would come from API
+  const mockEventData = {
+    "FEST2024": {
+      name: "Summer Beats Festival",
+      theme: "electronic",
+      vendors: [
+        {
+          id: 1,
+          name: "Burger Bliss",
+          category: "food",
+          logo: "🍔",
+          waitTime: 8,
+          menu: [
+            { id: 1, name: "Classic Burger", price: 12.99, image: "🍔" },
+            { id: 2, name: "Cheese Fries", price: 8.99, image: "🍟" }
+          ]
+        },
+        {
+          id: 2,
+          name: "Craft Cocktails",
+          category: "drink",
+          logo: "🍹",
+          waitTime: 12,
+          menu: [
+            { id: 3, name: "Festival Mojito", price: 15.99, image: "🍹" },
+            { id: 4, name: "Electric Lemonade", price: 13.99, image: "🥤" }
+          ]
+        },
+        {
+          id: 3,
+          name: "Beat Merch",
+          category: "merch",
+          logo: "👕",
+          waitTime: 3,
+          menu: [
+            { id: 5, name: "Festival T-Shirt", price: 29.99, image: "👕" },
+            { id: 6, name: "Glow Sticks Pack", price: 9.99, image: "✨" }
+          ]
+        }
+      ],
+      djVoting: {
+        currentTrack: "Electronic Dreams - DJ Nova",
+        options: [
+          { id: 1, title: "Bass Drop Anthem", artist: "DJ Thunder", votes: 42 },
+          { id: 2, title: "Neon Nights", artist: "Electric Soul", votes: 38 },
+          { id: 3, title: "Festival Vibes", artist: "Beat Master", votes: 29 }
+        ]
+      }
+    }
+  };
+
+  const handleEventCodeSubmit = (code: string) => {
+    const eventInfo = mockEventData[code as keyof typeof mockEventData];
+    if (eventInfo) {
+      setEventData(eventInfo);
+      setEventCode(code);
+      toast({
+        title: "Access Granted! 🎉",
+        description: `Welcome to ${eventInfo.name}`,
+      });
+    } else {
+      toast({
+        title: "Invalid Code",
+        description: "Please check your event code and try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  if (!eventData) {
+    return <EventCodeEntry onSubmit={handleEventCodeSubmit} />;
+  }
+
+  const renderActiveView = () => {
+    switch (activeView) {
+      case "dashboard":
+        return (
+          <Dashboard
+            eventData={eventData}
+            walletBalance={walletBalance}
+            onNavigate={setActiveView}
+          />
+        );
+      case "vendors":
+        return (
+          <VendorMarketplace
+            vendors={eventData.vendors}
+            walletBalance={walletBalance}
+            onWalletUpdate={setWalletBalance}
+          />
+        );
+      case "map":
+        return <InteractiveMap vendors={eventData.vendors} />;
+      case "dj":
+        return <DJVoting djData={eventData.djVoting} />;
+      case "wallet":
+        return (
+          <WalletComponent
+            balance={walletBalance}
+            onBalanceUpdate={setWalletBalance}
+          />
+        );
+      case "orders":
+        return <OrderHistory />;
+      default:
+        return (
+          <Dashboard
+            eventData={eventData}
+            walletBalance={walletBalance}
+            onNavigate={setActiveView}
+          />
+        );
+    }
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
+      {renderActiveView()}
+      
+      {/* Bottom Navigation */}
+      <div className="fixed bottom-0 left-0 right-0 bg-black/80 backdrop-blur-lg border-t border-purple-500/30">
+        <div className="flex justify-around items-center py-2 px-4">
+          {[
+            { id: "dashboard", icon: "🏠", label: "Home" },
+            { id: "map", icon: "🗺️", label: "Map" },
+            { id: "vendors", icon: "🛍️", label: "Vendors" },
+            { id: "dj", icon: "🎧", label: "DJ Vote" },
+            { id: "wallet", icon: "💳", label: "Wallet" },
+          ].map((item) => (
+            <button
+              key={item.id}
+              onClick={() => setActiveView(item.id)}
+              className={`flex flex-col items-center gap-1 p-2 rounded-lg transition-all ${
+                activeView === item.id
+                  ? "bg-purple-600 text-white"
+                  : "text-gray-300 hover:text-white hover:bg-white/10"
+              }`}
+            >
+              <span className="text-lg">{item.icon}</span>
+              <span className="text-xs font-medium">{item.label}</span>
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );
