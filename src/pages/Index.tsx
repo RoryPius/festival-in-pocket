@@ -15,6 +15,9 @@ import InteractiveMap from "@/components/InteractiveMap";
 import DJVoting from "@/components/DJVoting";
 import WalletComponent from "@/components/WalletComponent";
 import OrderHistory from "@/components/OrderHistory";
+import VendorBackend from "@/components/VendorBackend";
+import OrganizerBackend from "@/components/OrganizerBackend";
+import DJBackend from "@/components/DJBackend";
 
 const Index = () => {
   const [currentStep, setCurrentStep] = useState<'role' | 'org-role' | 'event-code' | 'app'>('role');
@@ -133,6 +136,28 @@ const Index = () => {
   // Show main app after authentication
   if (currentStep !== 'app' || !eventData) {
     return <EventCodeEntry onSubmit={handleEventCodeSubmit} />;
+  }
+
+  // Handle logout function
+  const handleLogout = () => {
+    setCurrentStep('role');
+    setSelectedRole(null);
+    setSelectedOrgRole(null);
+    setEventCode("");
+    setEventData(null);
+    setActiveView("dashboard");
+  };
+
+  // If organization user, show their specific backend
+  if (selectedRole === 'organization' && selectedOrgRole) {
+    switch (selectedOrgRole) {
+      case 'organizer':
+        return <OrganizerBackend onLogout={handleLogout} />;
+      case 'vendor':
+        return <VendorBackend onLogout={handleLogout} />;
+      case 'dj':
+        return <DJBackend onLogout={handleLogout} />;
+    }
   }
 
   const renderActiveView = () => {
