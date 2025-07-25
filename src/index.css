@@ -8,42 +8,42 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Chrome Light Theme - Ultra vibrant metallic chrome aesthetic */
-    --background: 220 25% 97%;
-    --foreground: 220 20% 5%;
+    /* Chrome Light Theme - Ultra vibrant bright metallic chrome aesthetic */
+    --background: 200 40% 98%;
+    --foreground: 220 25% 3%;
 
-    --card: 220 40% 95%;
-    --card-foreground: 220 20% 5%;
+    --card: 210 60% 96%;
+    --card-foreground: 220 25% 3%;
 
-    --popover: 220 40% 95%;
-    --popover-foreground: 220 20% 5%;
+    --popover: 210 60% 96%;
+    --popover-foreground: 220 25% 3%;
 
-    --primary: 240 100% 60%;
+    --primary: 280 100% 65%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 280 100% 75%;
-    --secondary-foreground: 280 30% 10%;
+    --secondary: 340 100% 70%;
+    --secondary-foreground: 340 30% 5%;
 
-    --muted: 220 50% 90%;
-    --muted-foreground: 220 20% 35%;
+    --muted: 200 60% 92%;
+    --muted-foreground: 220 25% 30%;
 
-    --accent: 160 100% 65%;
-    --accent-foreground: 160 40% 10%;
+    --accent: 120 100% 60%;
+    --accent-foreground: 120 40% 5%;
 
-    --destructive: 0 84% 60%;
+    --destructive: 0 90% 65%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 210 30% 85%;
-    --input: 210 30% 90%;
-    --ring: 210 100% 50%;
+    --border: 200 40% 80%;
+    --input: 200 40% 88%;
+    --ring: 280 100% 60%;
 
     --radius: 0.75rem;
 
-    /* Chrome gradients and effects - Ultra vibrant */
-    --chrome-gradient: linear-gradient(135deg, hsl(240, 100%, 60%), hsl(160, 100%, 65%));
-    --chrome-shine: linear-gradient(145deg, hsl(280, 100%, 75%), hsl(240, 100%, 80%));
-    --chrome-shadow: 0 6px 25px hsl(240, 100%, 60% / 0.4);
-    --neon-glow: 0 0 20px hsl(160, 100%, 65% / 0.6);
+    /* Chrome gradients and effects - Ultra bright vibrant */
+    --chrome-gradient: linear-gradient(135deg, hsl(280, 100%, 65%), hsl(120, 100%, 60%), hsl(340, 100%, 70%));
+    --chrome-shine: linear-gradient(145deg, hsl(340, 100%, 80%), hsl(280, 100%, 85%));
+    --chrome-shadow: 0 8px 30px hsl(280, 100%, 65% / 0.5);
+    --neon-glow: 0 0 25px hsl(120, 100%, 60% / 0.7);
 
     --sidebar-background: 210 25% 95%;
     --sidebar-foreground: 200 15% 20%;
