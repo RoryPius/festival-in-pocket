@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { MapPin, Utensils, Users, ShoppingBag, Music, CreditCard, Clock, Wallet, Home, Map } from "lucide-react";
+import RoleSelection from "@/components/RoleSelection";
+import OrganizationRoleSelection from "@/components/OrganizationRoleSelection";
 import EventCodeEntry from "@/components/EventCodeEntry";
 import Dashboard from "@/components/Dashboard";
 import VendorMarketplace from "@/components/VendorMarketplace";
@@ -15,6 +17,9 @@ import WalletComponent from "@/components/WalletComponent";
 import OrderHistory from "@/components/OrderHistory";
 
 const Index = () => {
+  const [currentStep, setCurrentStep] = useState<'role' | 'org-role' | 'event-code' | 'app'>('role');
+  const [selectedRole, setSelectedRole] = useState<'user' | 'organization' | null>(null);
+  const [selectedOrgRole, setSelectedOrgRole] = useState<'organizer' | 'vendor' | 'dj' | null>(null);
   const [eventCode, setEventCode] = useState<string>("");
   const [eventData, setEventData] = useState<any>(null);
   const [walletBalance, setWalletBalance] = useState(125.50);
@@ -72,11 +77,26 @@ const Index = () => {
     }
   };
 
+  const handleRoleSelect = (role: 'user' | 'organization') => {
+    setSelectedRole(role);
+    if (role === 'user') {
+      setCurrentStep('event-code');
+    } else {
+      setCurrentStep('org-role');
+    }
+  };
+
+  const handleOrgRoleSelect = (role: 'organizer' | 'vendor' | 'dj') => {
+    setSelectedOrgRole(role);
+    setCurrentStep('event-code');
+  };
+
   const handleEventCodeSubmit = (code: string) => {
     const eventInfo = mockEventData[code as keyof typeof mockEventData];
     if (eventInfo) {
       setEventData(eventInfo);
       setEventCode(code);
+      setCurrentStep('app');
       toast({
         title: "Access Granted!",
         description: `Welcome to ${eventInfo.name}`,
@@ -90,7 +110,28 @@ const Index = () => {
     }
   };
 
-  if (!eventData) {
+  // Show role selection first
+  if (currentStep === 'role') {
+    return <RoleSelection onRoleSelect={handleRoleSelect} />;
+  }
+
+  // Show organization role selection for org users
+  if (currentStep === 'org-role') {
+    return (
+      <OrganizationRoleSelection 
+        onRoleSelect={handleOrgRoleSelect}
+        onBack={() => setCurrentStep('role')}
+      />
+    );
+  }
+
+  // Show event code entry
+  if (currentStep === 'event-code') {
+    return <EventCodeEntry onSubmit={handleEventCodeSubmit} />;
+  }
+
+  // Show main app after authentication
+  if (currentStep !== 'app' || !eventData) {
     return <EventCodeEntry onSubmit={handleEventCodeSubmit} />;
   }
 
