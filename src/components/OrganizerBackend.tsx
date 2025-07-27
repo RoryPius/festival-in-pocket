@@ -3,6 +3,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
 import { 
   Crown, 
   Users, 
@@ -22,24 +26,154 @@ interface OrganizerBackendProps {
 
 const OrganizerBackend = ({ onLogout }: OrganizerBackendProps) => {
   const [activeTab, setActiveTab] = useState<'overview' | 'vendors' | 'djs' | 'locations' | 'analytics'>('overview');
+  const { toast } = useToast();
   
-  const [vendors] = useState([
+  const [vendors, setVendors] = useState([
     { id: 1, name: "Festival Food Co.", code: "VND001", status: "active", revenue: "$2,450" },
     { id: 2, name: "Craft Beer Corner", code: "VND002", status: "active", revenue: "$1,890" },
     { id: 3, name: "Merch Central", code: "VND003", status: "pending", revenue: "$0" },
   ]);
 
-  const [djs] = useState([
+  const [djs, setDjs] = useState([
     { id: 1, name: "DJ Pulse", code: "DJ001", status: "active", votes: 247 },
     { id: 2, name: "Beat Master", code: "DJ002", status: "active", votes: 189 },
     { id: 3, name: "Echo Wave", code: "DJ003", status: "offline", votes: 156 },
   ]);
 
-  const [locations] = useState([
+  const [locations, setLocations] = useState([
     { id: 1, name: "Main Stage", type: "Stage", capacity: 5000 },
     { id: 2, name: "Food Court", type: "Vendor Area", capacity: 200 },
     { id: 3, name: "VIP Lounge", type: "Special Area", capacity: 100 },
   ]);
+
+  // Form states
+  const [isVendorDialogOpen, setIsVendorDialogOpen] = useState(false);
+  const [isDjDialogOpen, setIsDjDialogOpen] = useState(false);
+  const [isLocationDialogOpen, setIsLocationDialogOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState<any>(null);
+
+  // Form data
+  const [vendorForm, setVendorForm] = useState({ name: "", code: "", status: "pending" });
+  const [djForm, setDjForm] = useState({ name: "", code: "", status: "offline" });
+  const [locationForm, setLocationForm] = useState({ name: "", type: "Stage", capacity: "" });
+
+  // CRUD Operations
+  const handleAddVendor = () => {
+    if (!vendorForm.name || !vendorForm.code) return;
+    const newVendor = {
+      id: vendors.length + 1,
+      name: vendorForm.name,
+      code: vendorForm.code,
+      status: vendorForm.status,
+      revenue: "$0"
+    };
+    setVendors([...vendors, newVendor]);
+    setVendorForm({ name: "", code: "", status: "pending" });
+    setIsVendorDialogOpen(false);
+    toast({ title: "Vendor added successfully!" });
+  };
+
+  const handleEditVendor = (vendor: any) => {
+    setEditingItem(vendor);
+    setVendorForm({ name: vendor.name, code: vendor.code, status: vendor.status });
+    setIsVendorDialogOpen(true);
+  };
+
+  const handleUpdateVendor = () => {
+    if (!vendorForm.name || !vendorForm.code || !editingItem) return;
+    setVendors(vendors.map(v => v.id === editingItem.id ? 
+      { ...v, name: vendorForm.name, code: vendorForm.code, status: vendorForm.status } : v
+    ));
+    setVendorForm({ name: "", code: "", status: "pending" });
+    setEditingItem(null);
+    setIsVendorDialogOpen(false);
+    toast({ title: "Vendor updated successfully!" });
+  };
+
+  const handleDeleteVendor = (id: number) => {
+    setVendors(vendors.filter(v => v.id !== id));
+    toast({ title: "Vendor deleted successfully!" });
+  };
+
+  const handleAddDj = () => {
+    if (!djForm.name || !djForm.code) return;
+    const newDj = {
+      id: djs.length + 1,
+      name: djForm.name,
+      code: djForm.code,
+      status: djForm.status,
+      votes: 0
+    };
+    setDjs([...djs, newDj]);
+    setDjForm({ name: "", code: "", status: "offline" });
+    setIsDjDialogOpen(false);
+    toast({ title: "DJ/Artist added successfully!" });
+  };
+
+  const handleEditDj = (dj: any) => {
+    setEditingItem(dj);
+    setDjForm({ name: dj.name, code: dj.code, status: dj.status });
+    setIsDjDialogOpen(true);
+  };
+
+  const handleUpdateDj = () => {
+    if (!djForm.name || !djForm.code || !editingItem) return;
+    setDjs(djs.map(d => d.id === editingItem.id ? 
+      { ...d, name: djForm.name, code: djForm.code, status: djForm.status } : d
+    ));
+    setDjForm({ name: "", code: "", status: "offline" });
+    setEditingItem(null);
+    setIsDjDialogOpen(false);
+    toast({ title: "DJ/Artist updated successfully!" });
+  };
+
+  const handleDeleteDj = (id: number) => {
+    setDjs(djs.filter(d => d.id !== id));
+    toast({ title: "DJ/Artist deleted successfully!" });
+  };
+
+  const handleAddLocation = () => {
+    if (!locationForm.name || !locationForm.type || !locationForm.capacity) return;
+    const newLocation = {
+      id: locations.length + 1,
+      name: locationForm.name,
+      type: locationForm.type,
+      capacity: parseInt(locationForm.capacity)
+    };
+    setLocations([...locations, newLocation]);
+    setLocationForm({ name: "", type: "Stage", capacity: "" });
+    setIsLocationDialogOpen(false);
+    toast({ title: "Location added successfully!" });
+  };
+
+  const handleEditLocation = (location: any) => {
+    setEditingItem(location);
+    setLocationForm({ name: location.name, type: location.type, capacity: location.capacity.toString() });
+    setIsLocationDialogOpen(true);
+  };
+
+  const handleUpdateLocation = () => {
+    if (!locationForm.name || !locationForm.type || !locationForm.capacity || !editingItem) return;
+    setLocations(locations.map(l => l.id === editingItem.id ? 
+      { ...l, name: locationForm.name, type: locationForm.type, capacity: parseInt(locationForm.capacity) } : l
+    ));
+    setLocationForm({ name: "", type: "Stage", capacity: "" });
+    setEditingItem(null);
+    setIsLocationDialogOpen(false);
+    toast({ title: "Location updated successfully!" });
+  };
+
+  const handleDeleteLocation = (id: number) => {
+    setLocations(locations.filter(l => l.id !== id));
+    toast({ title: "Location deleted successfully!" });
+  };
+
+  const resetForms = () => {
+    setVendorForm({ name: "", code: "", status: "pending" });
+    setDjForm({ name: "", code: "", status: "offline" });
+    setLocationForm({ name: "", type: "Stage", capacity: "" });
+    setEditingItem(null);
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -148,18 +282,30 @@ const OrganizerBackend = ({ onLogout }: OrganizerBackendProps) => {
                   <CardTitle className="text-white">Quick Actions</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <Button className="w-full bg-white/20 text-white hover:bg-white/30">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add New Vendor
-                  </Button>
-                  <Button className="w-full bg-white/20 text-white hover:bg-white/30">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Register DJ/Artist
-                  </Button>
-                  <Button className="w-full bg-white/20 text-white hover:bg-white/30">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Create Location
-                  </Button>
+                  <Dialog open={isVendorDialogOpen} onOpenChange={setIsVendorDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button className="w-full bg-white/20 text-white hover:bg-white/30" onClick={resetForms}>
+                        <Plus className="w-4 h-4 mr-2" />
+                        Add New Vendor
+                      </Button>
+                    </DialogTrigger>
+                  </Dialog>
+                  <Dialog open={isDjDialogOpen} onOpenChange={setIsDjDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button className="w-full bg-white/20 text-white hover:bg-white/30" onClick={resetForms}>
+                        <Plus className="w-4 h-4 mr-2" />
+                        Register DJ/Artist
+                      </Button>
+                    </DialogTrigger>
+                  </Dialog>
+                  <Dialog open={isLocationDialogOpen} onOpenChange={setIsLocationDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button className="w-full bg-white/20 text-white hover:bg-white/30" onClick={resetForms}>
+                        <Plus className="w-4 h-4 mr-2" />
+                        Create Location
+                      </Button>
+                    </DialogTrigger>
+                  </Dialog>
                 </CardContent>
               </Card>
 
@@ -185,10 +331,14 @@ const OrganizerBackend = ({ onLogout }: OrganizerBackendProps) => {
           <div className="space-y-6">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-bold text-white">Vendor Management</h2>
-              <Button className="bg-white/20 text-white hover:bg-white/30">
-                <Plus className="w-4 h-4 mr-2" />
-                Add Vendor
-              </Button>
+              <Dialog open={isVendorDialogOpen} onOpenChange={setIsVendorDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button className="bg-white/20 text-white hover:bg-white/30" onClick={resetForms}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Vendor
+                  </Button>
+                </DialogTrigger>
+              </Dialog>
             </div>
             
             <div className="grid gap-4">
@@ -207,10 +357,10 @@ const OrganizerBackend = ({ onLogout }: OrganizerBackendProps) => {
                         <p className="text-white font-semibold">Revenue: {vendor.revenue}</p>
                       </div>
                       <div className="flex space-x-2">
-                        <Button size="sm" variant="ghost" className="text-white hover:bg-white/20">
+                        <Button size="sm" variant="ghost" className="text-white hover:bg-white/20" onClick={() => handleEditVendor(vendor)}>
                           <Edit className="w-4 h-4" />
                         </Button>
-                        <Button size="sm" variant="ghost" className="text-white hover:bg-white/20">
+                        <Button size="sm" variant="ghost" className="text-white hover:bg-white/20" onClick={() => handleDeleteVendor(vendor.id)}>
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
@@ -227,10 +377,14 @@ const OrganizerBackend = ({ onLogout }: OrganizerBackendProps) => {
           <div className="space-y-6">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-bold text-white">DJ & Artist Management</h2>
-              <Button className="bg-white/20 text-white hover:bg-white/30">
-                <Plus className="w-4 h-4 mr-2" />
-                Register Artist
-              </Button>
+              <Dialog open={isDjDialogOpen} onOpenChange={setIsDjDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button className="bg-white/20 text-white hover:bg-white/30" onClick={resetForms}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Register Artist
+                  </Button>
+                </DialogTrigger>
+              </Dialog>
             </div>
             
             <div className="grid gap-4">
@@ -249,10 +403,10 @@ const OrganizerBackend = ({ onLogout }: OrganizerBackendProps) => {
                         <p className="text-white font-semibold">Total Votes: {dj.votes}</p>
                       </div>
                       <div className="flex space-x-2">
-                        <Button size="sm" variant="ghost" className="text-white hover:bg-white/20">
+                        <Button size="sm" variant="ghost" className="text-white hover:bg-white/20" onClick={() => handleEditDj(dj)}>
                           <Edit className="w-4 h-4" />
                         </Button>
-                        <Button size="sm" variant="ghost" className="text-white hover:bg-white/20">
+                        <Button size="sm" variant="ghost" className="text-white hover:bg-white/20" onClick={() => handleDeleteDj(dj.id)}>
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
@@ -269,10 +423,14 @@ const OrganizerBackend = ({ onLogout }: OrganizerBackendProps) => {
           <div className="space-y-6">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-bold text-white">Location Management</h2>
-              <Button className="bg-white/20 text-white hover:bg-white/30">
-                <Plus className="w-4 h-4 mr-2" />
-                Add Location
-              </Button>
+              <Dialog open={isLocationDialogOpen} onOpenChange={setIsLocationDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button className="bg-white/20 text-white hover:bg-white/30" onClick={resetForms}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Location
+                  </Button>
+                </DialogTrigger>
+              </Dialog>
             </div>
             
             <div className="grid gap-4">
@@ -286,10 +444,10 @@ const OrganizerBackend = ({ onLogout }: OrganizerBackendProps) => {
                         <p className="text-white font-semibold">Capacity: {location.capacity}</p>
                       </div>
                       <div className="flex space-x-2">
-                        <Button size="sm" variant="ghost" className="text-white hover:bg-white/20">
+                        <Button size="sm" variant="ghost" className="text-white hover:bg-white/20" onClick={() => handleEditLocation(location)}>
                           <Edit className="w-4 h-4" />
                         </Button>
-                        <Button size="sm" variant="ghost" className="text-white hover:bg-white/20">
+                        <Button size="sm" variant="ghost" className="text-white hover:bg-white/20" onClick={() => handleDeleteLocation(location.id)}>
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
@@ -354,6 +512,186 @@ const OrganizerBackend = ({ onLogout }: OrganizerBackendProps) => {
           </div>
         )}
       </div>
+
+      {/* Vendor Dialog */}
+      <DialogContent className="bg-black/90 backdrop-blur-lg border-white/20 text-white">
+        <DialogHeader>
+          <DialogTitle className="text-white">
+            {editingItem ? 'Edit Vendor' : 'Add New Vendor'}
+          </DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4">
+          <div>
+            <Label htmlFor="vendor-name" className="text-white">Vendor Name</Label>
+            <Input
+              id="vendor-name"
+              value={vendorForm.name}
+              onChange={(e) => setVendorForm({ ...vendorForm, name: e.target.value })}
+              className="bg-white/10 border-white/20 text-white"
+              placeholder="Enter vendor name"
+            />
+          </div>
+          <div>
+            <Label htmlFor="vendor-code" className="text-white">Vendor Code</Label>
+            <Input
+              id="vendor-code"
+              value={vendorForm.code}
+              onChange={(e) => setVendorForm({ ...vendorForm, code: e.target.value })}
+              className="bg-white/10 border-white/20 text-white"
+              placeholder="Enter vendor code"
+            />
+          </div>
+          <div>
+            <Label htmlFor="vendor-status" className="text-white">Status</Label>
+            <Select value={vendorForm.status} onValueChange={(value) => setVendorForm({ ...vendorForm, status: value })}>
+              <SelectTrigger className="bg-white/10 border-white/20 text-white">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-black/90 border-white/20">
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="inactive">Inactive</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex space-x-2">
+            <Button 
+              onClick={editingItem ? handleUpdateVendor : handleAddVendor}
+              className="bg-white/20 text-white hover:bg-white/30"
+            >
+              {editingItem ? 'Update' : 'Add'} Vendor
+            </Button>
+            <Button 
+              variant="ghost" 
+              onClick={() => { setIsVendorDialogOpen(false); resetForms(); }}
+              className="text-white hover:bg-white/20"
+            >
+              Cancel
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+
+      {/* DJ Dialog */}
+      <DialogContent className="bg-black/90 backdrop-blur-lg border-white/20 text-white">
+        <DialogHeader>
+          <DialogTitle className="text-white">
+            {editingItem ? 'Edit DJ/Artist' : 'Add New DJ/Artist'}
+          </DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4">
+          <div>
+            <Label htmlFor="dj-name" className="text-white">DJ/Artist Name</Label>
+            <Input
+              id="dj-name"
+              value={djForm.name}
+              onChange={(e) => setDjForm({ ...djForm, name: e.target.value })}
+              className="bg-white/10 border-white/20 text-white"
+              placeholder="Enter DJ/Artist name"
+            />
+          </div>
+          <div>
+            <Label htmlFor="dj-code" className="text-white">DJ Code</Label>
+            <Input
+              id="dj-code"
+              value={djForm.code}
+              onChange={(e) => setDjForm({ ...djForm, code: e.target.value })}
+              className="bg-white/10 border-white/20 text-white"
+              placeholder="Enter DJ code"
+            />
+          </div>
+          <div>
+            <Label htmlFor="dj-status" className="text-white">Status</Label>
+            <Select value={djForm.status} onValueChange={(value) => setDjForm({ ...djForm, status: value })}>
+              <SelectTrigger className="bg-white/10 border-white/20 text-white">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-black/90 border-white/20">
+                <SelectItem value="offline">Offline</SelectItem>
+                <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="performing">Performing</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex space-x-2">
+            <Button 
+              onClick={editingItem ? handleUpdateDj : handleAddDj}
+              className="bg-white/20 text-white hover:bg-white/30"
+            >
+              {editingItem ? 'Update' : 'Add'} DJ/Artist
+            </Button>
+            <Button 
+              variant="ghost" 
+              onClick={() => { setIsDjDialogOpen(false); resetForms(); }}
+              className="text-white hover:bg-white/20"
+            >
+              Cancel
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+
+      {/* Location Dialog */}
+      <DialogContent className="bg-black/90 backdrop-blur-lg border-white/20 text-white">
+        <DialogHeader>
+          <DialogTitle className="text-white">
+            {editingItem ? 'Edit Location' : 'Add New Location'}
+          </DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4">
+          <div>
+            <Label htmlFor="location-name" className="text-white">Location Name</Label>
+            <Input
+              id="location-name"
+              value={locationForm.name}
+              onChange={(e) => setLocationForm({ ...locationForm, name: e.target.value })}
+              className="bg-white/10 border-white/20 text-white"
+              placeholder="Enter location name"
+            />
+          </div>
+          <div>
+            <Label htmlFor="location-type" className="text-white">Location Type</Label>
+            <Select value={locationForm.type} onValueChange={(value) => setLocationForm({ ...locationForm, type: value })}>
+              <SelectTrigger className="bg-white/10 border-white/20 text-white">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-black/90 border-white/20">
+                <SelectItem value="Stage">Stage</SelectItem>
+                <SelectItem value="Vendor Area">Vendor Area</SelectItem>
+                <SelectItem value="Special Area">Special Area</SelectItem>
+                <SelectItem value="Entrance">Entrance</SelectItem>
+                <SelectItem value="Emergency">Emergency</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label htmlFor="location-capacity" className="text-white">Capacity</Label>
+            <Input
+              id="location-capacity"
+              type="number"
+              value={locationForm.capacity}
+              onChange={(e) => setLocationForm({ ...locationForm, capacity: e.target.value })}
+              className="bg-white/10 border-white/20 text-white"
+              placeholder="Enter capacity"
+            />
+          </div>
+          <div className="flex space-x-2">
+            <Button 
+              onClick={editingItem ? handleUpdateLocation : handleAddLocation}
+              className="bg-white/20 text-white hover:bg-white/30"
+            >
+              {editingItem ? 'Update' : 'Add'} Location
+            </Button>
+            <Button 
+              variant="ghost" 
+              onClick={() => { setIsLocationDialogOpen(false); resetForms(); }}
+              className="text-white hover:bg-white/20"
+            >
+              Cancel
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
     </div>
   );
 };
