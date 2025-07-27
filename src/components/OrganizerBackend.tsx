@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import { 
   Crown, 
   Users, 
@@ -28,23 +29,67 @@ const OrganizerBackend = ({ onLogout }: OrganizerBackendProps) => {
   const [activeTab, setActiveTab] = useState<'overview' | 'vendors' | 'djs' | 'locations' | 'analytics'>('overview');
   const { toast } = useToast();
   
-  const [vendors, setVendors] = useState([
-    { id: 1, name: "Festival Food Co.", code: "VND001", status: "active", revenue: "$2,450" },
-    { id: 2, name: "Craft Beer Corner", code: "VND002", status: "active", revenue: "$1,890" },
-    { id: 3, name: "Merch Central", code: "VND003", status: "pending", revenue: "$0" },
-  ]);
+  const [vendors, setVendors] = useState<any[]>([]);
+  const [djs, setDjs] = useState<any[]>([]);
+  const [locations, setLocations] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const [djs, setDjs] = useState([
-    { id: 1, name: "DJ Pulse", code: "DJ001", status: "active", votes: 247 },
-    { id: 2, name: "Beat Master", code: "DJ002", status: "active", votes: 189 },
-    { id: 3, name: "Echo Wave", code: "DJ003", status: "offline", votes: 156 },
-  ]);
+  // Load data from database
+  useEffect(() => {
+    loadAllData();
+  }, []);
 
-  const [locations, setLocations] = useState([
-    { id: 1, name: "Main Stage", type: "Stage", capacity: 5000 },
-    { id: 2, name: "Food Court", type: "Vendor Area", capacity: 200 },
-    { id: 3, name: "VIP Lounge", type: "Special Area", capacity: 100 },
-  ]);
+  const loadAllData = async () => {
+    setLoading(true);
+    try {
+      await Promise.all([loadVendors(), loadDjs(), loadLocations()]);
+    } catch (error) {
+      console.error('Error loading data:', error);
+      toast({ title: "Error loading data", variant: "destructive" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadVendors = async () => {
+    const { data, error } = await supabase
+      .from('vendors')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      console.error('Error loading vendors:', error);
+    } else {
+      setVendors(data || []);
+    }
+  };
+
+  const loadDjs = async () => {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('role', 'dj')
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      console.error('Error loading DJs:', error);
+    } else {
+      setDjs(data || []);
+    }
+  };
+
+  const loadLocations = async () => {
+    const { data, error } = await supabase
+      .from('event_locations')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      console.error('Error loading locations:', error);
+    } else {
+      setLocations(data || []);
+    }
+  };
 
   // Form states
   const [isVendorDialogOpen, setIsVendorDialogOpen] = useState(false);
@@ -58,19 +103,30 @@ const OrganizerBackend = ({ onLogout }: OrganizerBackendProps) => {
   const [locationForm, setLocationForm] = useState({ name: "", type: "Stage", capacity: "" });
 
   // CRUD Operations
-  const handleAddVendor = () => {
+  const handleAddVendor = async () => {
     if (!vendorForm.name || !vendorForm.code) return;
-    const newVendor = {
-      id: vendors.length + 1,
-      name: vendorForm.name,
-      code: vendorForm.code,
-      status: vendorForm.status,
-      revenue: "$0"
-    };
-    setVendors([...vendors, newVendor]);
-    setVendorForm({ name: "", code: "", status: "pending" });
-    setIsVendorDialogOpen(false);
-    toast({ title: "Vendor added successfully!" });
+    
+    try {
+      const { data, error } = await supabase
+        .from('vendors')
+        .insert([{
+          name: vendorForm.name,
+          code: vendorForm.code,
+          status: vendorForm.status
+        }])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      setVendors([data, ...vendors]);
+      setVendorForm({ name: "", code: "", status: "pending" });
+      setIsVendorDialogOpen(false);
+      toast({ title: "Vendor added successfully!" });
+    } catch (error) {
+      console.error('Error adding vendor:', error);
+      toast({ title: "Error adding vendor", variant: "destructive" });
+    }
   };
 
   const handleEditVendor = (vendor: any) => {
@@ -79,71 +135,153 @@ const OrganizerBackend = ({ onLogout }: OrganizerBackendProps) => {
     setIsVendorDialogOpen(true);
   };
 
-  const handleUpdateVendor = () => {
+  const handleUpdateVendor = async () => {
     if (!vendorForm.name || !vendorForm.code || !editingItem) return;
-    setVendors(vendors.map(v => v.id === editingItem.id ? 
-      { ...v, name: vendorForm.name, code: vendorForm.code, status: vendorForm.status } : v
-    ));
-    setVendorForm({ name: "", code: "", status: "pending" });
-    setEditingItem(null);
-    setIsVendorDialogOpen(false);
-    toast({ title: "Vendor updated successfully!" });
+    
+    try {
+      const { error } = await supabase
+        .from('vendors')
+        .update({
+          name: vendorForm.name,
+          code: vendorForm.code,
+          status: vendorForm.status
+        })
+        .eq('id', editingItem.id);
+
+      if (error) throw error;
+
+      setVendors(vendors.map(v => v.id === editingItem.id ? 
+        { ...v, name: vendorForm.name, code: vendorForm.code, status: vendorForm.status } : v
+      ));
+      setVendorForm({ name: "", code: "", status: "pending" });
+      setEditingItem(null);
+      setIsVendorDialogOpen(false);
+      toast({ title: "Vendor updated successfully!" });
+    } catch (error) {
+      console.error('Error updating vendor:', error);
+      toast({ title: "Error updating vendor", variant: "destructive" });
+    }
   };
 
-  const handleDeleteVendor = (id: number) => {
-    setVendors(vendors.filter(v => v.id !== id));
-    toast({ title: "Vendor deleted successfully!" });
+  const handleDeleteVendor = async (id: number) => {
+    try {
+      const { error } = await supabase
+        .from('vendors')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setVendors(vendors.filter(v => v.id !== id));
+      toast({ title: "Vendor deleted successfully!" });
+    } catch (error) {
+      console.error('Error deleting vendor:', error);
+      toast({ title: "Error deleting vendor", variant: "destructive" });
+    }
   };
 
-  const handleAddDj = () => {
+  const handleAddDj = async () => {
     if (!djForm.name || !djForm.code) return;
-    const newDj = {
-      id: djs.length + 1,
-      name: djForm.name,
-      code: djForm.code,
-      status: djForm.status,
-      votes: 0
-    };
-    setDjs([...djs, newDj]);
-    setDjForm({ name: "", code: "", status: "offline" });
-    setIsDjDialogOpen(false);
-    toast({ title: "DJ/Artist added successfully!" });
+    
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .insert([{
+          display_name: djForm.name,
+          access_code: djForm.code,
+          role: 'dj',
+          status: djForm.status
+        }])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      setDjs([data, ...djs]);
+      setDjForm({ name: "", code: "", status: "offline" });
+      setIsDjDialogOpen(false);
+      toast({ title: "DJ/Artist added successfully!" });
+    } catch (error) {
+      console.error('Error adding DJ:', error);
+      toast({ title: "Error adding DJ/Artist", variant: "destructive" });
+    }
   };
 
   const handleEditDj = (dj: any) => {
     setEditingItem(dj);
-    setDjForm({ name: dj.name, code: dj.code, status: dj.status });
+    setDjForm({ name: dj.display_name, code: dj.access_code, status: dj.status });
     setIsDjDialogOpen(true);
   };
 
-  const handleUpdateDj = () => {
+  const handleUpdateDj = async () => {
     if (!djForm.name || !djForm.code || !editingItem) return;
-    setDjs(djs.map(d => d.id === editingItem.id ? 
-      { ...d, name: djForm.name, code: djForm.code, status: djForm.status } : d
-    ));
-    setDjForm({ name: "", code: "", status: "offline" });
-    setEditingItem(null);
-    setIsDjDialogOpen(false);
-    toast({ title: "DJ/Artist updated successfully!" });
+    
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          display_name: djForm.name,
+          access_code: djForm.code,
+          status: djForm.status
+        })
+        .eq('id', editingItem.id);
+
+      if (error) throw error;
+
+      setDjs(djs.map(d => d.id === editingItem.id ? 
+        { ...d, display_name: djForm.name, access_code: djForm.code, status: djForm.status } : d
+      ));
+      setDjForm({ name: "", code: "", status: "offline" });
+      setEditingItem(null);
+      setIsDjDialogOpen(false);
+      toast({ title: "DJ/Artist updated successfully!" });
+    } catch (error) {
+      console.error('Error updating DJ:', error);
+      toast({ title: "Error updating DJ/Artist", variant: "destructive" });
+    }
   };
 
-  const handleDeleteDj = (id: number) => {
-    setDjs(djs.filter(d => d.id !== id));
-    toast({ title: "DJ/Artist deleted successfully!" });
+  const handleDeleteDj = async (id: number) => {
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setDjs(djs.filter(d => d.id !== id));
+      toast({ title: "DJ/Artist deleted successfully!" });
+    } catch (error) {
+      console.error('Error deleting DJ:', error);
+      toast({ title: "Error deleting DJ/Artist", variant: "destructive" });
+    }
   };
 
-  const handleAddLocation = () => {
+  const handleAddLocation = async () => {
     if (!locationForm.name || !locationForm.type || !locationForm.capacity) return;
-    const newLocation = {
-      id: locations.length + 1,
-      name: locationForm.name,
-      type: locationForm.type,
-      capacity: parseInt(locationForm.capacity)
-    };
-    setLocations([...locations, newLocation]);
-    setLocationForm({ name: "", type: "Stage", capacity: "" });
-    setIsLocationDialogOpen(false);
-    toast({ title: "Location added successfully!" });
+    
+    try {
+      const { data, error } = await supabase
+        .from('event_locations')
+        .insert([{
+          name: locationForm.name,
+          type: locationForm.type,
+          capacity: parseInt(locationForm.capacity)
+        }])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      setLocations([data, ...locations]);
+      setLocationForm({ name: "", type: "Stage", capacity: "" });
+      setIsLocationDialogOpen(false);
+      toast({ title: "Location added successfully!" });
+    } catch (error) {
+      console.error('Error adding location:', error);
+      toast({ title: "Error adding location", variant: "destructive" });
+    }
   };
 
   const handleEditLocation = (location: any) => {
@@ -152,20 +290,49 @@ const OrganizerBackend = ({ onLogout }: OrganizerBackendProps) => {
     setIsLocationDialogOpen(true);
   };
 
-  const handleUpdateLocation = () => {
+  const handleUpdateLocation = async () => {
     if (!locationForm.name || !locationForm.type || !locationForm.capacity || !editingItem) return;
-    setLocations(locations.map(l => l.id === editingItem.id ? 
-      { ...l, name: locationForm.name, type: locationForm.type, capacity: parseInt(locationForm.capacity) } : l
-    ));
-    setLocationForm({ name: "", type: "Stage", capacity: "" });
-    setEditingItem(null);
-    setIsLocationDialogOpen(false);
-    toast({ title: "Location updated successfully!" });
+    
+    try {
+      const { error } = await supabase
+        .from('event_locations')
+        .update({
+          name: locationForm.name,
+          type: locationForm.type,
+          capacity: parseInt(locationForm.capacity)
+        })
+        .eq('id', editingItem.id);
+
+      if (error) throw error;
+
+      setLocations(locations.map(l => l.id === editingItem.id ? 
+        { ...l, name: locationForm.name, type: locationForm.type, capacity: parseInt(locationForm.capacity) } : l
+      ));
+      setLocationForm({ name: "", type: "Stage", capacity: "" });
+      setEditingItem(null);
+      setIsLocationDialogOpen(false);
+      toast({ title: "Location updated successfully!" });
+    } catch (error) {
+      console.error('Error updating location:', error);
+      toast({ title: "Error updating location", variant: "destructive" });
+    }
   };
 
-  const handleDeleteLocation = (id: number) => {
-    setLocations(locations.filter(l => l.id !== id));
-    toast({ title: "Location deleted successfully!" });
+  const handleDeleteLocation = async (id: number) => {
+    try {
+      const { error } = await supabase
+        .from('event_locations')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setLocations(locations.filter(l => l.id !== id));
+      toast({ title: "Location deleted successfully!" });
+    } catch (error) {
+      console.error('Error deleting location:', error);
+      toast({ title: "Error deleting location", variant: "destructive" });
+    }
   };
 
   const resetForms = () => {
@@ -244,7 +411,7 @@ const OrganizerBackend = ({ onLogout }: OrganizerBackendProps) => {
                   <CardTitle className="text-white text-sm">Active Vendors</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-2xl font-bold text-white">12</p>
+                  <p className="text-2xl font-bold text-white">{vendors.filter(v => v.status === 'active').length}</p>
                 </CardContent>
               </Card>
               
@@ -253,25 +420,25 @@ const OrganizerBackend = ({ onLogout }: OrganizerBackendProps) => {
                   <CardTitle className="text-white text-sm">DJs Online</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-2xl font-bold text-white">5</p>
+                  <p className="text-2xl font-bold text-white">{djs.filter(d => d.status === 'active').length}</p>
                 </CardContent>
               </Card>
               
               <Card className="bg-white/20 backdrop-blur-lg border-white/30">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-white text-sm">Total Revenue</CardTitle>
+                  <CardTitle className="text-white text-sm">Total Locations</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-2xl font-bold text-white">$45,670</p>
+                  <p className="text-2xl font-bold text-white">{locations.length}</p>
                 </CardContent>
               </Card>
               
               <Card className="bg-white/20 backdrop-blur-lg border-white/30">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-white text-sm">Active Users</CardTitle>
+                  <CardTitle className="text-white text-sm">System Status</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-2xl font-bold text-white">1,247</p>
+                  <p className="text-2xl font-bold text-green-400">Online</p>
                 </CardContent>
               </Card>
             </div>
@@ -348,13 +515,13 @@ const OrganizerBackend = ({ onLogout }: OrganizerBackendProps) => {
                     <div className="flex justify-between items-center">
                       <div className="flex-1">
                         <div className="flex items-center space-x-2 mb-2">
-                          <h3 className="text-white font-semibold">{vendor.name}</h3>
+                         <h3 className="text-white font-semibold">{vendor.name}</h3>
                           <Badge className={`${getStatusColor(vendor.status)} text-white`}>
                             {vendor.status}
                           </Badge>
                         </div>
-                        <p className="text-white/80">Code: {vendor.code}</p>
-                        <p className="text-white font-semibold">Revenue: {vendor.revenue}</p>
+                         <p className="text-white/80">Code: {vendor.code}</p>
+                        <p className="text-white font-semibold">Status: {vendor.status}</p>
                       </div>
                       <div className="flex space-x-2">
                         <Button size="sm" variant="ghost" className="text-white hover:bg-white/20" onClick={() => handleEditVendor(vendor)}>
@@ -394,13 +561,13 @@ const OrganizerBackend = ({ onLogout }: OrganizerBackendProps) => {
                     <div className="flex justify-between items-center">
                       <div className="flex-1">
                         <div className="flex items-center space-x-2 mb-2">
-                          <h3 className="text-white font-semibold">{dj.name}</h3>
+                          <h3 className="text-white font-semibold">{dj.display_name}</h3>
                           <Badge className={`${getStatusColor(dj.status)} text-white`}>
                             {dj.status}
                           </Badge>
                         </div>
-                        <p className="text-white/80">Code: {dj.code}</p>
-                        <p className="text-white font-semibold">Total Votes: {dj.votes}</p>
+                         <p className="text-white/80">Code: {dj.access_code}</p>
+                        <p className="text-white font-semibold">Role: {dj.role}</p>
                       </div>
                       <div className="flex space-x-2">
                         <Button size="sm" variant="ghost" className="text-white hover:bg-white/20" onClick={() => handleEditDj(dj)}>
